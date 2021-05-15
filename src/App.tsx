@@ -2,11 +2,7 @@ import React, { useState, useEffect } from "react";
 import "./App.css";
 
 import { createClient, createMicrophoneAudioTrack } from "agora-rtc-react";
-import {
-  ClientConfig,
-  IAgoraRTCRemoteUser,
-  IMicrophoneAudioTrack,
-} from "agora-rtc-sdk-ng";
+import { ClientConfig } from "agora-rtc-sdk-ng";
 
 const config: ClientConfig = {
   mode: "rtc",
@@ -39,8 +35,6 @@ const AudioCall = (props: {
   channelName: string;
 }) => {
   const { setInCall, channelName } = props;
-  const [users, setUsers] = useState<IAgoraRTCRemoteUser[]>([]);
-  const [start, setStart] = useState<boolean>(false);
   const client = useClient();
   const { ready, track } = useMicrophoneTrack();
 
@@ -64,9 +58,6 @@ const AudioCall = (props: {
 
       client.on("user-left", (user) => {
         console.log("leaving", user);
-        setUsers((prevUsers) => {
-          return prevUsers.filter((User) => User.uid !== user.uid);
-        });
       });
 
       const token = await fetch(
@@ -77,7 +68,6 @@ const AudioCall = (props: {
 
       await client.join(appId, name, token, null);
       if (track) await client.publish([track]);
-      setStart(true);
     };
 
     if (ready && track) {
@@ -88,16 +78,14 @@ const AudioCall = (props: {
 
   return (
     <div className="App">
-      {ready && track && (
-        <Controls track={track} setStart={setStart} setInCall={setInCall} />
-      )}
+      {ready && track && <Controls track={track} setInCall={setInCall} />}
     </div>
   );
 };
 
 export const Controls = (props: any) => {
   const client = useClient();
-  const { track, setStart, setInCall } = props;
+  const { track, setInCall } = props;
   const [trackState, setTrackState] = useState({ audio: true });
 
   const mute = async (type: "audio" | "video") => {
@@ -113,7 +101,6 @@ export const Controls = (props: any) => {
     await client.leave();
     client.removeAllListeners();
     track.close();
-    setStart(false);
     setInCall(false);
   };
 
