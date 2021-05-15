@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
 
-import {
-  AgoraVideoPlayer,
-  createClient,
-  createMicrophoneAndCameraTracks,
-} from "agora-rtc-react";
+import { createClient, createMicrophoneAudioTrack } from "agora-rtc-react";
 import {
   ClientConfig,
   IAgoraRTCRemoteUser,
-  ICameraVideoTrack,
   IMicrophoneAudioTrack,
 } from "agora-rtc-sdk-ng";
 
@@ -21,7 +16,7 @@ const config: ClientConfig = {
 const appId: string = process.env.REACT_APP_AGORA_APP_ID as string;
 
 const useClient = createClient(config);
-const useMicrophoneAndCameraTracks = createMicrophoneAndCameraTracks();
+const useMicrophoneTrack = createMicrophoneAudioTrack();
 
 function App() {
   const [inCall, setInCall] = useState(false);
@@ -29,9 +24,9 @@ function App() {
 
   return (
     <div>
-      <h1 className="heading">Audio Chat App</h1>
+      <h1 className="heading">Chad App</h1>
       {inCall ? (
-        <VideoCall setInCall={setInCall} channelName={channelName} />
+        <AudioCall setInCall={setInCall} channelName={channelName} />
       ) : (
         <ChannelForm setInCall={setInCall} setChannelName={setChannelName} />
       )}
@@ -39,7 +34,7 @@ function App() {
   );
 }
 
-const VideoCall = (props: {
+const AudioCall = (props: {
   setInCall: React.Dispatch<React.SetStateAction<boolean>>;
   channelName: string;
 }) => {
@@ -47,7 +42,7 @@ const VideoCall = (props: {
   const [users, setUsers] = useState<IAgoraRTCRemoteUser[]>([]);
   const [start, setStart] = useState<boolean>(false);
   const client = useClient();
-  const { ready, tracks } = useMicrophoneAndCameraTracks();
+  const { ready, track } = useMicrophoneTrack();
 
   useEffect(() => {
     // function to initialise the SDK
@@ -55,11 +50,6 @@ const VideoCall = (props: {
       client.on("user-published", async (user, mediaType) => {
         await client.subscribe(user, mediaType);
         console.log("subscribe success");
-        if (mediaType === "video") {
-          setUsers((prevUsers) => {
-            return [...prevUsers, user];
-          });
-        }
         if (mediaType === "audio") {
           user.audioTrack?.play();
         }
@@ -69,11 +59,6 @@ const VideoCall = (props: {
         console.log("unpublished", user, type);
         if (type === "audio") {
           user.audioTrack?.stop();
-        }
-        if (type === "video") {
-          setUsers((prevUsers) => {
-            return prevUsers.filter((User) => User.uid !== user.uid);
-          });
         }
       });
 
@@ -91,68 +76,35 @@ const VideoCall = (props: {
         .then((data) => data.key);
 
       await client.join(appId, name, token, null);
-      if (tracks) await client.publish([tracks[0], tracks[1]]);
+      if (track) await client.publish([track]);
       setStart(true);
     };
 
-    if (ready && tracks) {
+    if (ready && track) {
       console.log("init ready");
       init(channelName);
     }
-  }, [channelName, client, ready, tracks]);
+  }, [channelName, client, ready, track]);
 
   return (
     <div className="App">
-      {ready && tracks && (
-        <Controls tracks={tracks} setStart={setStart} setInCall={setInCall} />
+      {ready && track && (
+        <Controls track={track} setStart={setStart} setInCall={setInCall} />
       )}
-      {start && tracks && <Videos users={users} tracks={tracks} />}
-    </div>
-  );
-};
-
-const Videos = (props: {
-  users: IAgoraRTCRemoteUser[];
-  tracks: [IMicrophoneAudioTrack, ICameraVideoTrack];
-}) => {
-  const { users, tracks } = props;
-
-  return (
-    <div>
-      <div id="videos">
-        <AgoraVideoPlayer className="vid" videoTrack={tracks[1]} />
-        {users.length > 0 &&
-          users.map((user) => {
-            if (user.videoTrack) {
-              return (
-                <AgoraVideoPlayer
-                  className="vid"
-                  videoTrack={user.videoTrack}
-                  key={user.uid}
-                />
-              );
-            } else return null;
-          })}
-      </div>
     </div>
   );
 };
 
 export const Controls = (props: any) => {
   const client = useClient();
-  const { tracks, setStart, setInCall } = props;
-  const [trackState, setTrackState] = useState({ video: true, audio: true });
+  const { track, setStart, setInCall } = props;
+  const [trackState, setTrackState] = useState({ audio: true });
 
   const mute = async (type: "audio" | "video") => {
     if (type === "audio") {
-      await tracks[0].setEnabled(!trackState.audio);
+      await track.setEnabled(!trackState.audio);
       setTrackState((ps) => {
         return { ...ps, audio: !ps.audio };
-      });
-    } else if (type === "video") {
-      await tracks[1].setEnabled(!trackState.video);
-      setTrackState((ps) => {
-        return { ...ps, video: !ps.video };
       });
     }
   };
@@ -160,8 +112,7 @@ export const Controls = (props: any) => {
   const leaveChannel = async () => {
     await client.leave();
     client.removeAllListeners();
-    tracks[0].close();
-    tracks[1].close();
+    track.close();
     setStart(false);
     setInCall(false);
   };
@@ -170,9 +121,6 @@ export const Controls = (props: any) => {
     <div className="controls">
       <p className={trackState.audio ? "on" : ""} onClick={() => mute("audio")}>
         {trackState.audio ? "MuteAudio" : "UnmuteAudio"}
-      </p>
-      <p className={trackState.video ? "on" : ""} onClick={() => mute("video")}>
-        {trackState.video ? "MuteVideo" : "UnmuteVideo"}
       </p>
       {<p onClick={() => leaveChannel()}>Leave</p>}
     </div>
