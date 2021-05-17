@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import "./App.css";
-import { useClient, useMicrophoneTrack } from "./hooks";
-import { AGORA_APP_ID as agoraAppId } from "./constants";
+
+import { useAudioSdk, useClient } from "./hooks";
 
 function App() {
   const [inCall, setInCall] = useState(false);
@@ -24,50 +24,15 @@ const AudioCall = (props: {
   channelName: string;
 }) => {
   const { setInCall, channelName } = props;
-  const client = useClient();
-  const { ready, track } = useMicrophoneTrack();
-
-  useEffect(() => {
-    // function to initialise the SDK
-    let init = async (name: string) => {
-      client.on("user-published", async (user, mediaType) => {
-        await client.subscribe(user, mediaType);
-        console.log("subscribe success");
-        if (mediaType === "audio") {
-          user.audioTrack?.play();
-        }
-      });
-
-      client.on("user-unpublished", (user, type) => {
-        console.log("unpublished", user, type);
-        if (type === "audio") {
-          user.audioTrack?.stop();
-        }
-      });
-
-      client.on("user-left", (user) => {
-        console.log("leaving", user);
-      });
-
-      const token = await fetch(
-        `${process.env.REACT_APP_TOKEN_ENDPOINT}chat/rtcToken?channelName=${channelName}`
-      )
-        .then((response) => response.json())
-        .then((data) => data.key);
-
-      await client.join(agoraAppId, name, token, null);
-      if (track) await client.publish([track]);
-    };
-
-    if (ready && track) {
-      console.log("init ready");
-      init(channelName);
-    }
-  }, [channelName, client, ready, track]);
+  const { micReady, micTrack } = useAudioSdk(channelName);
 
   return (
     <div className="App">
-      {ready && track && <Controls track={track} setInCall={setInCall} />}
+      {micReady && micTrack && (
+        <>
+          <Controls track={micTrack} setInCall={setInCall} />
+        </>
+      )}
     </div>
   );
 };
@@ -75,18 +40,14 @@ const AudioCall = (props: {
 export const Controls = (props: any) => {
   const client = useClient();
   const { track, setInCall } = props;
-  const [trackState, setTrackState] = useState({ audio: true });
+  const [isMuted, setIsMuted] = useState<boolean>(true);
 
-  const mute = async (type: "audio" | "video") => {
-    if (type === "audio") {
-      await track.setEnabled(!trackState.audio);
-      setTrackState((ps) => {
-        return { ...ps, audio: !ps.audio };
-      });
-    }
+  const handleToggleMute = async () => {
+    await track.setEnabled(!isMuted);
+    setIsMuted(!isMuted);
   };
 
-  const leaveChannel = async () => {
+  const handleLeaveChannel = async () => {
     await client.leave();
     client.removeAllListeners();
     track.close();
@@ -95,10 +56,10 @@ export const Controls = (props: any) => {
 
   return (
     <div className="controls">
-      <p className={trackState.audio ? "on" : ""} onClick={() => mute("audio")}>
-        {trackState.audio ? "MuteAudio" : "UnmuteAudio"}
+      <p className={isMuted ? "" : "on"} onClick={handleToggleMute}>
+        {isMuted ? "Unmute" : "Mute"}
       </p>
-      {<p onClick={() => leaveChannel()}>Leave</p>}
+      {<p onClick={handleLeaveChannel}>Leave</p>}
     </div>
   );
 };
@@ -111,11 +72,6 @@ const ChannelForm = (props: {
 
   return (
     <form className="join">
-      {agoraAppId === "" && (
-        <p style={{ color: "red" }}>
-          Please enter your App ID in .env and refresh the page
-        </p>
-      )}
       <input
         type="text"
         placeholder="Enter Channel Name"

@@ -7,3 +7,9 @@ export const AGORA_CLIENT_CONFIG: ClientConfig = {
   mode: "rtc",
   codec: "vp8",
 };
+
+export const AUDIO_MEDIA = "audio";
+export const VIDEO_MEDIA = "video";
+
+export const TOKEN_ENDPOINT: string = process.env
+  .REACT_APP_TOKEN_ENDPOINT as string;
