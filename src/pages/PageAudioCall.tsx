@@ -42,8 +42,8 @@ function PageJoinCall(props: {
 
   return (
     <>
-      <button onClick={handleClickJoinCall}>Join Call</button>
-      <button onClick={handleLeaveChannel}>Join another channel</button>
+      <button onClick={handleClickJoinCall}>Join call</button>
+      <button onClick={handleLeaveChannel}>Exit channel</button>
     </>
   );
 }

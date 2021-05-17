@@ -14,10 +14,13 @@ const PageChannelForm = () => {
     <form onSubmit={handleJoinChannel}>
       <input
         type="text"
+        className="joinChannelTextInput"
         placeholder="Enter Channel Name"
         onChange={(e) => setChannelName(e.target.value)}
       />
-      <button type="submit">Join</button>
+      <div>
+        <button type="submit">Join</button>
+      </div>
     </form>
   );
 };
