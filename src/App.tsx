@@ -1,18 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./App.css";
-
-import { createClient, createMicrophoneAudioTrack } from "agora-rtc-react";
-import { ClientConfig } from "agora-rtc-sdk-ng";
-
-const config: ClientConfig = {
-  mode: "rtc",
-  codec: "vp8",
-};
-
-const appId: string = process.env.REACT_APP_AGORA_APP_ID as string;
-
-const useClient = createClient(config);
-const useMicrophoneTrack = createMicrophoneAudioTrack();
+import { useClient, useMicrophoneTrack } from "./hooks";
+import { AGORA_APP_ID as agoraAppId } from "./constants";
 
 function App() {
   const [inCall, setInCall] = useState(false);
@@ -66,7 +55,7 @@ const AudioCall = (props: {
         .then((response) => response.json())
         .then((data) => data.key);
 
-      await client.join(appId, name, token, null);
+      await client.join(agoraAppId, name, token, null);
       if (track) await client.publish([track]);
     };
 
@@ -122,7 +111,7 @@ const ChannelForm = (props: {
 
   return (
     <form className="join">
-      {appId === "" && (
+      {agoraAppId === "" && (
         <p style={{ color: "red" }}>
           Please enter your App ID in .env and refresh the page
         </p>
