@@ -19,12 +19,12 @@ import { AGORA_CLIENT_CONFIG as config } from "../constants/audioSdk";
 export const useClient = createClient(config);
 export const useMicrophoneTrack = createMicrophoneAudioTrack();
 
-export function useAudioSdk(channelName: string): {
-  micReady: boolean;
-  micTrack: IMicrophoneAudioTrack | null;
-} {
+export function useAudioSdk(
+  channelName: string,
+  ready: boolean,
+  track: IMicrophoneAudioTrack | null
+) {
   const client = useClient();
-  const { ready, track } = useMicrophoneTrack();
 
   useEffect(() => {
     async function handleStreamPublished(

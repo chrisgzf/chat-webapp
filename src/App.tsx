@@ -7,12 +7,14 @@ function App() {
   return (
     <Router>
       <Switch>
-        <Route exact path="/">
-          <PageChannelForm />
-        </Route>
-        <Route path="/:channelName">
-          <PageAudioCall />
-        </Route>
+        <div className="App">
+          <Route exact path="/">
+            <PageChannelForm />
+          </Route>
+          <Route path="/:channelName">
+            <PageAudioCall />
+          </Route>
+        </div>
       </Switch>
     </Router>
   );

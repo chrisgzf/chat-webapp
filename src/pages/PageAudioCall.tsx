@@ -1,53 +1,70 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
 
-import { useAudioSdk, useClient } from "../hooks/audioSdk";
+import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
 import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 
 const PageAudioCall = () => {
   const { channelName } = useParams<{ channelName: string }>();
-  console.log(`CHANNEL NAME IS: ${channelName}`);
-  const { micReady, micTrack } = useAudioSdk(channelName);
+  const { ready: micReady, track: micTrack } = useMicrophoneTrack();
+  const [hasJoinedCall, setHasJoinedCall] = useState<boolean>(false);
 
   return (
-    <div className="App">
+    <>
       <h1>{channelName}</h1>
-      {micReady && micTrack && (
-        <>
-          <Controls track={micTrack} />
-        </>
+      {hasJoinedCall ? (
+        <PageInCall
+          channelName={channelName}
+          setHasJoinedCall={setHasJoinedCall}
+          track={micTrack}
+          ready={micReady}
+        />
+      ) : (
+        <PageJoinCall setHasJoinedCall={setHasJoinedCall} />
       )}
-    </div>
+    </>
   );
 };
 
-const Controls = (props: { track: IMicrophoneAudioTrack }) => {
-  const client = useClient();
-  const { track } = props;
-  const [isMuted, setIsMuted] = useState<boolean>(true);
+function PageJoinCall(props: {
+  setHasJoinedCall: React.Dispatch<React.SetStateAction<boolean>>;
+}) {
+  const { setHasJoinedCall } = props;
+  const handleClickJoinCall = () => setHasJoinedCall(true);
+  return <button onClick={handleClickJoinCall}>Join Call</button>;
+}
 
-  const history = useHistory();
+function PageInCall(props: {
+  channelName: string;
+  setHasJoinedCall: React.Dispatch<React.SetStateAction<boolean>>;
+  track: IMicrophoneAudioTrack | null;
+  ready: boolean;
+}) {
+  const { channelName, setHasJoinedCall, track, ready } = props;
+  const client = useClient();
+  useAudioSdk(channelName, ready, track);
+
+  const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const handleToggleMute = async () => {
-    await track.setEnabled(!isMuted);
+    await track?.setEnabled(isMuted);
     setIsMuted(!isMuted);
   };
 
-  const handleLeaveChannel = async () => {
+  const handleLeaveCall = async () => {
     await client.leave();
     client.removeAllListeners();
-    track.close();
-    history.push("/");
+    // track?.close();
+    setHasJoinedCall(false);
   };
 
   return (
-    <div className="controls">
-      <p className={isMuted ? "" : "on"} onClick={handleToggleMute}>
-        {isMuted ? "Unmute" : "Mute"}
-      </p>
-      {<p onClick={handleLeaveChannel}>Leave</p>}
-    </div>
+    <>
+      <p>Current: {isMuted ? "Muted" : "Not muted"}</p>
+      <button onClick={handleToggleMute}>{isMuted ? "Unmute" : "Mute"}</button>
+      <button onClick={handleLeaveCall}>Leave</button>
+    </>
   );
-};
+}
 
 export default PageAudioCall;
