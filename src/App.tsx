@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import "./App.css";
 
-import { useAudioSdk, useClient } from "./hooks";
+import { useAudioSdk, useClient } from "./hooks/audioSdk";
 
 function App() {
   const [inCall, setInCall] = useState(false);

@@ -4,16 +4,17 @@ import {
   createMicrophoneAudioTrack,
   IMicrophoneAudioTrack,
 } from "agora-rtc-react";
-import { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
-import { EVENT_STREAM_PUBLISHED, EVENT_STREAM_UNPUBLISHED } from "./events";
 import {
-  AGORA_APP_ID as agoraAppId,
-  AUDIO_MEDIA,
-  TOKEN_ENDPOINT,
-} from "./constants";
-import type { MediaType } from "./types";
+  EVENT_STREAM_PUBLISHED,
+  EVENT_STREAM_UNPUBLISHED,
+} from "../constants/events";
+import { AGORA_APP_ID, AUDIO_MEDIA } from "../constants/audioSdk";
+import { TOKEN_ENDPOINT } from "../constants/endpoints";
 
-import { AGORA_CLIENT_CONFIG as config } from "./constants";
+import type { IAgoraRTCRemoteUser } from "agora-rtc-sdk-ng";
+import type { MediaType } from "../types/audioSdk";
+
+import { AGORA_CLIENT_CONFIG as config } from "../constants/audioSdk";
 
 export const useClient = createClient(config);
 export const useMicrophoneTrack = createMicrophoneAudioTrack();
@@ -60,7 +61,7 @@ export function useAudioSdk(channelName: string): {
 
       const token = await fetchSdkToken();
 
-      await client.join(agoraAppId, name, token, null);
+      await client.join(AGORA_APP_ID, name, token, null);
       if (track) await client.publish([track]);
     };
 
