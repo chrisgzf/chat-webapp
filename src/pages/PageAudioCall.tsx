@@ -20,7 +20,7 @@ const PageAudioCall = () => {
           ready={micReady}
         />
       ) : (
-        <PageJoinCall setHasJoinedCall={setHasJoinedCall} />
+        <PageJoinCall setHasJoinedCall={setHasJoinedCall} track={micTrack} />
       )}
     </>
   );
@@ -28,10 +28,24 @@ const PageAudioCall = () => {
 
 function PageJoinCall(props: {
   setHasJoinedCall: React.Dispatch<React.SetStateAction<boolean>>;
+  track: IMicrophoneAudioTrack | null;
 }) {
-  const { setHasJoinedCall } = props;
+  const { setHasJoinedCall, track } = props;
+  const history = useHistory();
+
   const handleClickJoinCall = () => setHasJoinedCall(true);
-  return <button onClick={handleClickJoinCall}>Join Call</button>;
+
+  const handleLeaveChannel = () => {
+    track?.close();
+    history.push("/");
+  };
+
+  return (
+    <>
+      <button onClick={handleClickJoinCall}>Join Call</button>
+      <button onClick={handleLeaveChannel}>Join another channel</button>
+    </>
+  );
 }
 
 function PageInCall(props: {
@@ -54,7 +68,6 @@ function PageInCall(props: {
   const handleLeaveCall = async () => {
     await client.leave();
     client.removeAllListeners();
-    // track?.close();
     setHasJoinedCall(false);
   };
 
