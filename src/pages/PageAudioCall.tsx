@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useHistory, useParams } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
 import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
 import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
@@ -11,6 +12,10 @@ const PageAudioCall = () => {
 
   return (
     <>
+      <Helmet>
+        <title>Chad - {channelName}</title>
+        <link rel="canonical" href="https://chat.christopher.sg" />
+      </Helmet>
       <h1>{channelName}</h1>
       {hasJoinedCall ? (
         <PageInCall
