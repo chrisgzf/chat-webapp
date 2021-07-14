@@ -4,11 +4,13 @@ import { Helmet } from "react-helmet";
 
 const PageChannelForm = () => {
   const [channelName, setChannelName] = useState<string>("");
+  const [username, setUserName] = useState<string>("");
   const history = useHistory();
 
   function handleJoinChannel(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    history.push(`/${channelName}`);
+    /* history.push(`/${channelName}`); */
+    history.push({ pathname: `/${channelName}`, state: { uid: username } });
   }
 
   return (
@@ -22,6 +24,12 @@ const PageChannelForm = () => {
           className="joinChannelTextInput"
           placeholder="Enter Channel Name"
           onChange={(e) => setChannelName(e.target.value)}
+        />
+        <input
+          type="text"
+          className="joinChannelTextInput"
+          placeholder="Enter Your name"
+          onChange={(e) => setUserName(e.target.value)}
         />
         <div>
           <button type="submit">Join</button>

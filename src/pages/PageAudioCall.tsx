@@ -1,15 +1,28 @@
 import React, { useState } from "react";
-import { useHistory, useParams } from "react-router-dom";
+import {
+  useHistory,
+  useLocation,
+  useParams,
+  RouteComponentProps,
+} from "react-router-dom";
+
 import { Helmet } from "react-helmet";
 
 import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
 import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
 
+interface PageParams {
+  uid: string;
+}
+interface PageProps extends RouteComponentProps<PageParams> {
+  uid: string;
+}
+
 const PageAudioCall = () => {
   const { channelName } = useParams<{ channelName: string }>();
   const { ready: micReady, track: micTrack } = useMicrophoneTrack();
   const [hasJoinedCall, setHasJoinedCall] = useState<boolean>(false);
-
+  const location = useLocation<PageProps>();
   return (
     <>
       <Helmet>
@@ -23,6 +36,7 @@ const PageAudioCall = () => {
           setHasJoinedCall={setHasJoinedCall}
           track={micTrack}
           ready={micReady}
+          username={location.state?.uid}
         />
       ) : (
         <PageJoinCall setHasJoinedCall={setHasJoinedCall} track={micTrack} />
@@ -58,11 +72,11 @@ function PageInCall(props: {
   setHasJoinedCall: React.Dispatch<React.SetStateAction<boolean>>;
   track: IMicrophoneAudioTrack | null;
   ready: boolean;
+  username: string;
 }) {
-  const { channelName, setHasJoinedCall, track, ready } = props;
+  const { channelName, setHasJoinedCall, track, ready, username } = props;
   const client = useClient();
-  useAudioSdk(channelName, ready, track);
-
+  useAudioSdk(channelName, ready, track, username);
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const handleToggleMute = async () => {
@@ -79,6 +93,7 @@ function PageInCall(props: {
   return (
     <>
       <p>Current: {isMuted ? "Muted" : "Not muted"}</p>
+      <p>You are {username}</p>
       <button onClick={handleToggleMute}>{isMuted ? "Unmute" : "Mute"}</button>
       <button onClick={handleLeaveCall}>Leave</button>
     </>
