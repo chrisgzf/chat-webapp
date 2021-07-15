@@ -9,7 +9,7 @@ import {
 import { Helmet } from "react-helmet";
 import {
   uniqueNamesGenerator,
-  Config,
+  Config as UniqueNamesConfig,
   adjectives,
   colors,
 } from "unique-names-generator";
