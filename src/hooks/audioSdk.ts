@@ -65,7 +65,7 @@ export function useAudioSdk(
 
       const token = await fetchSdkToken();
 
-      await client.join(AGORA_APP_ID, name, token, null);
+      await client.join(AGORA_APP_ID, name, token, username);
 
       if (track) {
         await client.publish([track]);
