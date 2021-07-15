@@ -65,12 +65,7 @@ export function useAudioSdk(
 
       const token = await fetchSdkToken();
       await client.join(AGORA_APP_ID, name, token, username);
-      /* const TEST_APP_ID = "d01a910d66284256ab571919c74d14f9";
-      // this needs to be regenerated every 24h
-      const testToken =
-        "006d01a910d66284256ab571919c74d14f9IACBMOPVYegNfhXBXHqp0v08edXY24yhcBZZXkGW60ps81dxXwcAAAAAEABK0cUi6UrxYAEAAQDoSvFg";
 
-      await client.join(TEST_APP_ID, name, testToken, username); */
       if (track) {
         await client.publish([track]);
       }

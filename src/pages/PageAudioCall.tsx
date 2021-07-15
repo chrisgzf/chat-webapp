@@ -7,23 +7,21 @@ import {
 } from "react-router-dom";
 
 import { Helmet } from "react-helmet";
-
-import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
-import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
-import {
-  EVENT_STREAM_PUBLISHED,
-  EVENT_STREAM_UNPUBLISHED,
-} from "../constants/events";
 import {
   uniqueNamesGenerator,
   Config,
   adjectives,
   colors,
 } from "unique-names-generator";
+import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
+import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
+import {
+  EVENT_STREAM_PUBLISHED,
+  EVENT_STREAM_UNPUBLISHED,
+} from "../constants/events";
 
-const customConfig: Config = {
+const randomNameConfig: Config = {
   dictionaries: [adjectives, colors],
-  separator: "-",
   length: 2,
 };
 
@@ -54,7 +52,7 @@ const PageAudioCall = () => {
           ready={micReady}
           username={
             location.state === undefined
-              ? uniqueNamesGenerator(customConfig)
+              ? uniqueNamesGenerator(randomNameConfig)
               : location.state.uid
           }
         />
@@ -128,7 +126,7 @@ function PageInCall(props: {
       <p>You are : {username}</p>
       <p>In the call</p>
       {users.map((x) => (
-        <p>{x}</p>
+        <p key={x}>{x}</p>
       ))}
       <button onClick={handleToggleMute}>{isMuted ? "Unmute" : "Mute"}</button>
       <button onClick={handleLeaveCall}>Leave</button>

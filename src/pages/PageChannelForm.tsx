@@ -27,7 +27,7 @@ const PageChannelForm = () => {
         <input
           type="text"
           className="joinChannelTextInput"
-          placeholder="Enter Your name"
+          placeholder="Enter Your Name"
           onChange={(e) => setUserName(e.target.value)}
         />
         <div>
