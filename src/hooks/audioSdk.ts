@@ -63,14 +63,9 @@ export function useAudioSdk(
       client.on(EVENT_STREAM_PUBLISHED, handleStreamPublished);
       client.on(EVENT_STREAM_UNPUBLISHED, handleStreamUnpublished);
 
-      /* const token = await fetchSdkToken(); */
+      const token = await fetchSdkToken();
 
-      /* await client.join(AGORA_APP_ID, name, token, null); */
-
-      const token =
-        "006d01a910d66284256ab571919c74d14f9IAADFHAVoSYczpL6x8U0GzzXyslv6b+7fDnnhIqq+ngDMFdxXwcAAAAAEAAHiSHU3XPwYAEAAQDdc/Bg";
-      const TEMP_APP_ID = "d01a910d66284256ab571919c74d14f9";
-      await client.join(TEMP_APP_ID, name, token, username);
+      await client.join(AGORA_APP_ID, name, token, null);
 
       if (track) {
         await client.publish([track]);

@@ -9,7 +9,6 @@ const PageChannelForm = () => {
 
   function handleJoinChannel(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    /* history.push(`/${channelName}`); */
     history.push({ pathname: `/${channelName}`, state: { uid: username } });
   }
 
