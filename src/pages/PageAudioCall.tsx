@@ -14,6 +14,18 @@ import {
   EVENT_STREAM_PUBLISHED,
   EVENT_STREAM_UNPUBLISHED,
 } from "../constants/events";
+import {
+  uniqueNamesGenerator,
+  Config,
+  adjectives,
+  colors,
+} from "unique-names-generator";
+
+const customConfig: Config = {
+  dictionaries: [adjectives, colors],
+  separator: "-",
+  length: 2,
+};
 
 interface PageParams {
   uid: string;
@@ -40,7 +52,11 @@ const PageAudioCall = () => {
           setHasJoinedCall={setHasJoinedCall}
           track={micTrack}
           ready={micReady}
-          username={location.state?.uid}
+          username={
+            location.state === undefined
+              ? uniqueNamesGenerator(customConfig)
+              : location.state.uid
+          }
         />
       ) : (
         <PageJoinCall setHasJoinedCall={setHasJoinedCall} track={micTrack} />
