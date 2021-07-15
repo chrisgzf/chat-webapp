@@ -10,6 +10,10 @@ import { Helmet } from "react-helmet";
 
 import { useAudioSdk, useClient, useMicrophoneTrack } from "../hooks/audioSdk";
 import type { IMicrophoneAudioTrack } from "agora-rtc-sdk-ng";
+import {
+  EVENT_STREAM_PUBLISHED,
+  EVENT_STREAM_UNPUBLISHED,
+} from "../constants/events";
 
 interface PageParams {
   uid: string;
@@ -76,7 +80,19 @@ function PageInCall(props: {
 }) {
   const { channelName, setHasJoinedCall, track, ready, username } = props;
   const client = useClient();
+  const [users, setUsers] = useState<string[]>([username]);
+
+  client.on(EVENT_STREAM_PUBLISHED, async (user, mediaType) => {
+    const newArr = [...users, user.uid.toString()];
+    setUsers(newArr);
+  });
+  client.on(EVENT_STREAM_UNPUBLISHED, async (user, mediaType) => {
+    const newArr = users.filter((x) => x === username);
+    setUsers(newArr);
+  });
+
   useAudioSdk(channelName, ready, track, username);
+
   const [isMuted, setIsMuted] = useState<boolean>(false);
 
   const handleToggleMute = async () => {
@@ -93,7 +109,11 @@ function PageInCall(props: {
   return (
     <>
       <p>Current: {isMuted ? "Muted" : "Not muted"}</p>
-      <p>You are {username}</p>
+      <p>You are : {username}</p>
+      <p>In the call</p>
+      {users.map((x) => (
+        <p>{x}</p>
+      ))}
       <button onClick={handleToggleMute}>{isMuted ? "Unmute" : "Mute"}</button>
       <button onClick={handleLeaveCall}>Leave</button>
     </>
