@@ -20,7 +20,7 @@ import {
   EVENT_STREAM_UNPUBLISHED,
 } from "../constants/events";
 
-const randomNameConfig: Config = {
+const randomNameConfig: UniqueNamesConfig = {
   dictionaries: [adjectives, colors],
   length: 2,
 };
