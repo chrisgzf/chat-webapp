@@ -16,7 +16,7 @@ import {
 } from "../constants/events";
 import {
   uniqueNamesGenerator,
-  Config,
+  Config as UniqueNamesConfig,
   adjectives,
   colors,
 } from "unique-names-generator";
